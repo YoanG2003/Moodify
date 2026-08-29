@@ -53,6 +53,42 @@ export async function registerWithEmail(email: string, password: string, ageBand
   return profile;
 }
 
+async function saveRegisteredProfile(credential: UserCredential, ageBand: AgeBand, displayName = '') {
+  const { db } = requireFirebase();
+  const existing = await getDoc(doc(db, 'users', credential.user.uid));
+  if (existing.exists()) return loadExistingProfile(credential);
+  const profile = profileFromCredential(credential, ageBand, displayName);
+  await setDoc(doc(db, 'users', credential.user.uid), { ...profile, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
+  return profile;
+}
+
+export async function registerWithGoogleIdToken(idToken: string, ageBand: AgeBand) {
+  const { auth } = requireFirebase();
+  const credential = await signInWithCredential(auth, GoogleAuthProvider.credential(idToken));
+  return saveRegisteredProfile(credential, ageBand, credential.user.displayName ?? '');
+}
+
+async function getAppleCredential() {
+  const rawNonce = Crypto.randomUUID();
+  const hashedNonce = await Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, rawNonce);
+  const apple = await AppleAuthentication.signInAsync({
+    requestedScopes: [AppleAuthentication.AppleAuthenticationScope.FULL_NAME, AppleAuthentication.AppleAuthenticationScope.EMAIL],
+    nonce: hashedNonce,
+  });
+  if (!apple.identityToken) throw new Error('Apple did not return an identity token.');
+  const provider = new OAuthProvider('apple.com');
+  return {
+    credential: provider.credential({ idToken: apple.identityToken, rawNonce }),
+    displayName: [apple.fullName?.givenName, apple.fullName?.familyName].filter(Boolean).join(' '),
+  };
+}
+
+export async function registerWithApple(ageBand: AgeBand) {
+  const { auth } = requireFirebase();
+  const apple = await getAppleCredential();
+  return saveRegisteredProfile(await signInWithCredential(auth, apple.credential), ageBand, apple.displayName);
+}
+
 async function loadExistingProfile(credential: UserCredential) {
   const { db } = requireFirebase();
   const snapshot = await getDoc(doc(db, 'users', credential.user.uid));
@@ -77,16 +113,8 @@ export async function loginWithGoogleIdToken(idToken: string) {
 
 export async function loginWithApple() {
   const { auth } = requireFirebase();
-  const rawNonce = Crypto.randomUUID();
-  const hashedNonce = await Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, rawNonce);
-  const apple = await AppleAuthentication.signInAsync({
-    requestedScopes: [AppleAuthentication.AppleAuthenticationScope.FULL_NAME, AppleAuthentication.AppleAuthenticationScope.EMAIL],
-    nonce: hashedNonce,
-  });
-  if (!apple.identityToken) throw new Error('Apple did not return an identity token.');
-  const provider = new OAuthProvider('apple.com');
-  const credential = provider.credential({ idToken: apple.identityToken, rawNonce });
-  return loadExistingProfile(await signInWithCredential(auth, credential));
+  const apple = await getAppleCredential();
+  return loadExistingProfile(await signInWithCredential(auth, apple.credential));
 }
 
 export async function resetPassword(email: string) {

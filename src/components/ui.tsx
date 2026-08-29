@@ -93,7 +93,7 @@ export function Field({ label, error, rightIcon, onRightPress, ...props }: TextI
     <View style={styles.fieldWrap}>
       <MoodifyText variant="label" style={styles.fieldLabel}>{label}</MoodifyText>
       <View style={[styles.field, { backgroundColor: colors.input, borderColor: error ? colors.danger : colors.border }]}>
-        <TextInput placeholderTextColor={colors.textMuted} {...props} style={[styles.fieldInput, { color: colors.heading }]} />
+        <TextInput placeholderTextColor={colors.inputPlaceholder} {...props} style={[styles.fieldInput, { color: colors.inputText }]} />
         {rightIcon ? <IconButton icon={rightIcon} label={`${label} action`} onPress={onRightPress} color={colors.textMuted} /> : null}
       </View>
       {error ? <MoodifyText variant="small" color={colors.danger}>{error}</MoodifyText> : null}
@@ -143,13 +143,13 @@ const styles = StyleSheet.create({
   flex: { flex: 1 },
   screenContent: { paddingHorizontal: spacing.xl, paddingBottom: 120, gap: spacing.lg },
   text: { fontFamily: typography.regular, lineHeight: 24 },
-  hero: { fontSize: 34, lineHeight: 41, fontFamily: typography.bold, fontWeight: '700' },
-  h1: { fontSize: 25, lineHeight: 31, fontFamily: typography.medium, fontWeight: '600' },
-  h2: { fontSize: 20, lineHeight: 25, fontFamily: typography.bold, fontWeight: '700' },
+  hero: { fontSize: 39, lineHeight: 47, fontFamily: typography.bold, fontWeight: '700' },
+  h1: { fontSize: 25, lineHeight: 30, fontFamily: typography.bold, fontWeight: '700' },
+  h2: { fontSize: 20, lineHeight: 24, fontFamily: typography.medium, fontWeight: '600' },
   body: { fontSize: 16, lineHeight: 24 },
-  small: { fontSize: 13, lineHeight: 18 },
-  label: { fontSize: 11, lineHeight: 15, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.3 },
-  buttonText: { fontSize: 16, lineHeight: 20, fontWeight: '700', textTransform: 'uppercase' },
+  small: { fontSize: 13, lineHeight: 16 },
+  label: { fontSize: 13, lineHeight: 16, fontWeight: '700' },
+  buttonText: { fontSize: 16, lineHeight: 19, fontWeight: '700', textTransform: 'uppercase' },
   header: { minHeight: 56, flexDirection: 'row', alignItems: 'center', marginHorizontal: -8, marginBottom: spacing.sm },
   headerSide: { width: 48, alignItems: 'center', justifyContent: 'center' },
   headerTitle: { flex: 1, alignItems: 'center' },

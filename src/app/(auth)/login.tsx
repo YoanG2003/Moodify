@@ -55,7 +55,7 @@ export default function LoginScreen() {
       <Controller control={control} name="email" render={({ field }) => <Field label={en.auth.email} value={field.value} onChangeText={field.onChange} onBlur={field.onBlur} autoCapitalize="none" keyboardType="email-address" autoComplete="email" placeholder="Enter your email address" error={errors.email?.message} />} />
       <Controller control={control} name="password" render={({ field }) => <Field label={en.auth.password} value={field.value} onChangeText={field.onChange} onBlur={field.onBlur} secureTextEntry autoComplete="current-password" placeholder="Enter your password here" error={errors.password?.message} />} />
       <Pressable onPress={() => firebaseConfigured ? void reset() : Alert.alert('Firebase setup needed', 'Password reset is ready once Firebase credentials are added.')}><MoodifyText variant="small" color={colors.primary} style={styles.link}>{en.auth.forgot}</MoodifyText></Pressable>
-      <Pressable onPress={() => router.push('/(auth)/register')}><MoodifyText color={colors.primary} style={[styles.link, styles.underline]}>{en.auth.create}</MoodifyText></Pressable>
+      <Pressable onPress={() => router.push('/(auth)/age-gate')}><MoodifyText color={colors.primary} style={[styles.link, styles.underline]}>{en.auth.create}</MoodifyText></Pressable>
       <PrimaryButton title={en.auth.login} loading={loading} onPress={handleSubmit((form) => void login(form))} />
       {!firebaseConfigured ? <PrimaryButton secondary title="Try local beta" onPress={() => { loginDemo('demo@moodify.app'); router.replace('/(tabs)'); }} /> : null}
     </Screen>
