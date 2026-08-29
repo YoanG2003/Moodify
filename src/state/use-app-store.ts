@@ -59,6 +59,7 @@ interface AppState {
   rateMoodEntry: (entryId: string, rating: number) => void;
   addHabit: (habit: Omit<Habit, 'id' | 'createdAt'>) => string;
   updateHabit: (habitId: string, update: Partial<Habit>) => void;
+  deleteHabit: (habitId: string) => void;
   logHabit: (habitId: string, value: number, date?: string) => void;
   upsertHealthDaily: (daily: HealthDaily) => void;
   ensureChatSession: () => string;
@@ -141,6 +142,11 @@ export const useAppStore = create<AppState>()(
         void syncHabit(state.profile?.uid, next);
         return next;
       }) })),
+      deleteHabit: (habitId) => set((state) => {
+        void deleteCloudRecord(state.profile?.uid, 'habits', habitId);
+        state.habitLogs.filter((log) => log.habitId === habitId).forEach((log) => void deleteCloudRecord(state.profile?.uid, 'habitLogs', log.id));
+        return { habits: state.habits.filter((habit) => habit.id !== habitId), habitLogs: state.habitLogs.filter((log) => log.habitId !== habitId) };
+      }),
       logHabit: (habitId, value, date = format(new Date(), 'yyyy-MM-dd')) => set((state) => {
         const habit = state.habits.find((item) => item.id === habitId);
         if (!habit) return state;

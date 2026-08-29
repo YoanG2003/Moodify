@@ -31,6 +31,7 @@ export async function cancelMoodReminder() {
 
 export async function scheduleHabitReminders(habitId: string, title: string, weekdays: number[], time: string) {
   const [hour, minute] = time.split(':').map(Number);
+  await cancelHabitReminders(habitId);
   await Promise.all(weekdays.map((weekday) => Notifications.scheduleNotificationAsync({
     identifier: `habit-${habitId}-${weekday}`,
     content: { title: title, body: `A gentle reminder for your ${title.toLowerCase()} goal.`, data: { url: '/habits' } },
