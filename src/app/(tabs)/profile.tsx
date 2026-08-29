@@ -51,7 +51,7 @@ export default function ProfileScreen() {
     <Screen contentStyle={styles.content} keyboard>
       <Image source={isDark ? require('../../../assets/figma/profile/background-dark.png') : require('../../../assets/figma/profile/background-light.png')} style={styles.background} contentFit="fill" pointerEvents="none" />
       <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }] }>
-        <IconButton icon="menu-outline" label="Open settings" color={colors.primary} onPress={() => router.push('/settings')} />
+        <IconButton icon="menu-outline" label="Open menu" color={colors.primary} onPress={() => router.push('/menu')} />
         <MoodifyText variant="h1" color={colors.navLabel} style={styles.headerTitle}>Profile</MoodifyText>
         <IconButton icon="shield-checkmark-outline" label="Privacy settings" color={colors.primary} onPress={() => router.push('/settings')} />
       </View>

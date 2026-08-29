@@ -62,7 +62,7 @@ export default function AddMoodScreen() {
     <Screen keyboard contentStyle={styles.content}>
       <PageBackdrop />
       <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }] }>
-        <IconButton icon="menu-outline" label="Open settings" color={colors.primary} onPress={() => router.push('/settings')} />
+        <IconButton icon="menu-outline" label="Open menu" color={colors.primary} onPress={() => router.push('/menu')} />
         <MoodifyText variant="h1" color={colors.primary}>Add mood</MoodifyText>
         <IconButton icon="person-circle-outline" label="Open profile" color={colors.primary} onPress={() => router.push('/profile')} />
       </View>
