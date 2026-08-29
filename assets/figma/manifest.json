@@ -1,0 +1,28 @@
+{
+  "sourceOfTruth": {
+    "fileKey": "CX9YSQtd96DEcO9oSEt8lD",
+    "pageNodeId": "405:74041",
+    "supplementalAuthFileKey": "WG3TB36zDJVPfaHu34mBUf",
+    "supplementalAuthNodeId": "11:27991"
+  },
+  "notes": "Files are exact bytes exported through Figma design context. Source URLs are intentionally omitted because they expire.",
+  "assets": {
+    "auth-background.svg": "11:27991/background",
+    "auth-illustration-background.svg": "35:44629/background-complete",
+    "auth-illustration-shape.svg": "35:44693/background-simple",
+    "auth-illustration-window.svg": "35:44695/Window",
+    "auth-illustration-character.svg": "35:44762/Character",
+    "auth-illustration-speech.svg": "35:44833/speech-bubble",
+    "google.svg": "35:44845/Social icon",
+    "apple.svg": "35:44852/Social icon",
+    "friendly-triangles.png": "405:92292/Friendly Ones Friendly Triangles",
+    "chat-illustration-background.svg": "405:92292/questions/background-simple",
+    "chat-illustration-plants.svg": "405:92292/questions/Plants",
+    "chat-question-marks.svg": "405:92292/questions/question-marks-2",
+    "chat-question-mark.svg": "405:92292/questions/question-mark-1",
+    "avatar-default.png": "587:23139/Avatars Default",
+    "avatar-eyes-cry.svg": "587:23139/Eyes/Cry",
+    "avatar-eyes-happy.svg": "587:23139/Eyes/Happy",
+    "avatar-hoodie.svg": "587:23139/Clothing/Hoodie"
+  }
+}

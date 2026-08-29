@@ -1,0 +1,7 @@
+{
+  "indexes": [],
+  "fieldOverrides": [
+    { "collectionGroup": "messages", "fieldPath": "expiresAt", "ttl": true, "indexes": [] },
+    { "collectionGroup": "chatSessions", "fieldPath": "expiresAt", "ttl": true, "indexes": [] }
+  ]
+}

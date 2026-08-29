@@ -1,0 +1,86 @@
+{
+  "expo": {
+    "name": "Moodify",
+    "slug": "moodify",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/brand/moodify-app-icon.png",
+    "scheme": "moodify",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "icon": "./assets/brand/moodify-app-icon.png",
+      "bundleIdentifier": "com.moodify.app",
+      "supportsTablet": false,
+      "usesAppleSignIn": true,
+      "infoPlist": {
+        "NSHealthShareUsageDescription": "Moodify reads your step and sleep summaries only when you choose to connect Apple Health.",
+        "NSHealthUpdateUsageDescription": "Moodify does not write health information in this version.",
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "com.moodify.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#000000",
+        "foregroundImage": "./assets/brand/moodify-adaptive-foreground.png"
+      },
+      "permissions": [
+        "android.permission.health.READ_STEPS",
+        "android.permission.health.READ_SLEEP"
+      ],
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "output": "static",
+      "favicon": "./assets/brand/moodify-favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-notifications",
+        {
+          "color": "#007474",
+          "defaultChannel": "reminders"
+        }
+      ],
+      [
+        "@kingstinct/react-native-healthkit",
+        {
+          "NSHealthShareUsageDescription": "Moodify reads your step and sleep summaries only when you choose to connect Apple Health.",
+          "NSHealthUpdateUsageDescription": "Moodify does not write health information in this version.",
+          "background": false
+        }
+      ],
+      "react-native-health-connect",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "compileSdkVersion": 36,
+            "targetSdkVersion": 36,
+            "minSdkVersion": 26
+          }
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#000000",
+          "image": "./assets/brand/moodify-splash-logo.png",
+          "imageWidth": 180,
+          "dark": {
+            "backgroundColor": "#000000",
+            "image": "./assets/brand/moodify-splash-logo.png"
+          }
+        }
+      ],
+      "expo-localization",
+      "expo-secure-store"
+      ,"expo-apple-authentication"
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    }
+  }
+}
