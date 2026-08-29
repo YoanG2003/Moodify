@@ -23,6 +23,7 @@ export default function TabsLayout() {
       <Tabs.Screen name="add" options={{ title: '', tabBarButton: ({ children, onPress, onLongPress, accessibilityState }) => <Pressable accessibilityRole="button" accessibilityLabel="Add mood" accessibilityState={accessibilityState} onPress={onPress} onLongPress={onLongPress} style={styles.addButton}>{children}</Pressable> }} />
       <Tabs.Screen name="chat" options={{ title: 'Chat' }} />
       <Tabs.Screen name="insights" options={{ title: 'Insights' }} />
+      <Tabs.Screen name="profile" options={{ href: null }} />
     </Tabs>
   );
 }
