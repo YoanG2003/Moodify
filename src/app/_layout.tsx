@@ -1,5 +1,4 @@
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
-import { Montserrat_400Regular, Montserrat_700Bold, useFonts } from '@expo-google-fonts/montserrat';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
@@ -14,9 +13,7 @@ export default function RootLayout() {
   useCloudSync();
   useNativeDiagnostics();
   const { isDark } = useMoodifyTheme();
-  const [fontsLoaded] = useFonts({ Montserrat_400Regular, Montserrat_700Bold });
-  useEffect(() => { if (fontsLoaded) void SplashScreen.hideAsync(); }, [fontsLoaded]);
-  if (!fontsLoaded) return null;
+  useEffect(() => { void SplashScreen.hideAsync(); }, []);
   return (
     <ThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
       <StatusBar style={isDark ? 'light' : 'dark'} />

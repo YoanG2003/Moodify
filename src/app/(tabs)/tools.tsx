@@ -4,17 +4,19 @@ import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { Card, Chip, Header, MoodifyText, PageBackdrop, Screen } from '@/components/ui';
+import { useMoodifyTheme } from '@/hooks/use-moodify-theme';
 import { useWellnessContent } from '@/hooks/use-wellness-content';
 import { radius, spacing } from '@/theme/tokens';
 
 export default function ToolsScreen() {
+  const { colors } = useMoodifyTheme();
   const wellnessContent = useWellnessContent();
   const categories = ['All', ...new Set(wellnessContent.filter((item) => item.type === 'tool').map((item) => item.category))];
   const [category, setCategory] = useState('All');
   const tools = wellnessContent.filter((item) => item.type === 'tool' && (category === 'All' || item.category === category));
   return (
     <Screen>
-      <PageBackdrop /><Header title="Tools" right={<Ionicons name="sparkles-outline" size={22} color="#007474" />} />
+      <PageBackdrop /><Header title="Tools" right={<Ionicons name="sparkles-outline" size={22} color={colors.primary} />} />
       <MoodifyText variant="h2">Choose category</MoodifyText>
       <View style={styles.chips}>{categories.map((item) => <Chip key={item} label={item} selected={item === category} onPress={() => setCategory(item)} />)}</View>
       <MoodifyText variant="h1">Discover</MoodifyText>

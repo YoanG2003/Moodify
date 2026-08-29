@@ -1,5 +1,5 @@
-import { router } from 'expo-router';
-import { useMemo, useRef, useState } from 'react';
+import { router, useFocusEffect } from 'expo-router';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { Chip, Header, MoodifyText, PageBackdrop, PrimaryButton, Screen } from '@/components/ui';
@@ -20,6 +20,9 @@ export default function AddMoodScreen() {
   const [selectedWeather, setWeather] = useState<string>();
   const [note, setNote] = useState('');
   const saving = useRef(false);
+  useFocusEffect(useCallback(() => {
+    saving.current = false;
+  }, []));
   const toggleCause = (cause: string) => setCauses((current) => current.includes(cause) ? current.filter((item) => item !== cause) : [...current, cause]);
   const selectedLabel = useMemo(() => moods.find((item) => item.value === mood)?.label, [mood]);
   const save = () => {

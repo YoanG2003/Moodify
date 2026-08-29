@@ -1,15 +1,14 @@
 import { Ionicons } from '@expo/vector-icons';
 import { format } from 'date-fns';
 import { router } from 'expo-router';
-import { Image } from 'expo-image';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
-import { Card, HeroGradient, IconButton, MoodifyText, PageBackdrop, ProgressBar, Screen } from '@/components/ui';
+import { Card, Header, HeroGradient, IconButton, MoodifyText, PageBackdrop, ProgressBar, Screen } from '@/components/ui';
 import { quotes } from '@/data/seed';
 import { useWellnessContent } from '@/hooks/use-wellness-content';
 import { recommendContent } from '@/lib/recommendations';
 import { useAppStore } from '@/state/use-app-store';
-import { radius, spacing } from '@/theme/tokens';
+import { palette, radius, spacing } from '@/theme/tokens';
 
 function greeting() {
   const hour = new Date().getHours();
@@ -29,15 +28,10 @@ export default function HomeScreen() {
   return (
     <Screen contentStyle={styles.content}>
       <PageBackdrop />
-      <View style={styles.topRow}>
-        <View style={styles.greeting}><MoodifyText variant="h1">{greeting()} {profile?.displayName || 'there'}!</MoodifyText><MoodifyText variant="small">Today is {format(new Date(), 'dd/MM/yyyy · EEEE')}</MoodifyText></View>
-        <IconButton icon="person-circle-outline" label="Open profile" onPress={() => router.push('/profile')} />
-      </View>
+      <Header title="Home" left={<IconButton icon="menu-outline" label="Open settings" onPress={() => router.push('/settings')} />} right={<IconButton icon="person-circle-outline" label="Open profile" onPress={() => router.push('/profile')} />} />
+      <View style={styles.greeting}><MoodifyText>{greeting()} {profile?.displayName || 'there'}! Today is</MoodifyText><MoodifyText variant="small">{format(new Date(), 'dd/MM/yyyy · EEEE')}</MoodifyText></View>
       <HeroGradient>
-        <View style={styles.heroRow}>
-          <Image source={require('../../../assets/figma/avatar-default.png')} style={styles.avatar} contentFit="contain" />
-          <View style={styles.heroCopy}><MoodifyText variant="h2">A moment for you</MoodifyText><MoodifyText>“{quote}”</MoodifyText></View>
-        </View>
+        <View style={styles.heroCopy}><MoodifyText variant="h2" style={styles.center}>“{quote}”</MoodifyText><View style={styles.quoteCircle} /></View>
       </HeroGradient>
       <View style={styles.sectionHeader}><MoodifyText variant="h1">Recommended for today</MoodifyText><MoodifyText variant="small">Based on your recent check-ins</MoodifyText></View>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontal}>
@@ -47,13 +41,13 @@ export default function HomeScreen() {
       <View style={styles.habitGrid}>{habits.filter((habit) => habit.active).map((habit) => {
         const log = logs.find((item) => item.habitId === habit.id && item.date === today);
         const value = log?.value ?? 0;
-        return <Card key={habit.id} style={styles.habitCard}><View style={styles.habitTop}><Ionicons name={habit.kind === 'sleep' ? 'moon' : habit.kind === 'water' ? 'water' : habit.kind === 'food' ? 'nutrition' : 'walk'} size={24} color="#007474" /><IconButton icon="add" label={`Log ${habit.title}`} onPress={() => logHabit(habit.id, Math.min(habit.target, value + Math.max(1, habit.target / 4)))} /></View><MoodifyText variant="h2">{habit.title}</MoodifyText><MoodifyText variant="small">{Math.round(value)} / {habit.target} {habit.unit}</MoodifyText><ProgressBar value={value / habit.target} /></Card>;
+        return <Card key={habit.id} style={styles.habitCard}><View style={styles.habitTop}><Ionicons name={habit.kind === 'sleep' ? 'moon' : habit.kind === 'water' ? 'water' : habit.kind === 'food' ? 'nutrition' : 'walk'} size={24} color={palette.teal800} /><IconButton icon="add" label={`Log ${habit.title}`} onPress={() => logHabit(habit.id, Math.min(habit.target, value + Math.max(1, habit.target / 4)))} /></View><MoodifyText variant="h2">{habit.title}</MoodifyText><MoodifyText variant="small">{Math.round(value)} / {habit.target} {habit.unit}</MoodifyText><ProgressBar value={value / habit.target} /></Card>;
       })}</View>
-      <Pressable onPress={() => router.push('/habits')} style={styles.manage}><Ionicons name="options-outline" size={20} color="#007474" /><MoodifyText color="#007474">Manage habits and reminders</MoodifyText></Pressable>
+      <Pressable onPress={() => router.push('/habits')} style={styles.manage}><Ionicons name="options-outline" size={20} color={palette.teal800} /><MoodifyText color={palette.teal800}>Manage habits and reminders</MoodifyText></Pressable>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  content: { paddingTop: spacing.sm }, topRow: { flexDirection: 'row', alignItems: 'center' }, greeting: { flex: 1, gap: 2 }, heroRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.lg }, avatar: { width: 112, height: 112, borderRadius: 56 }, heroCopy: { flex: 1, gap: spacing.sm }, sectionHeader: { gap: 2 }, horizontal: { gap: spacing.md, paddingRight: spacing.xl }, recCard: { width: 188, minHeight: 150, borderRadius: radius.lg, padding: spacing.lg, justifyContent: 'space-between' }, habitGrid: { gap: spacing.md }, habitCard: { gap: spacing.sm }, habitTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }, manage: { minHeight: 48, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm },
+  content: { paddingTop: 0 }, greeting: { alignItems: 'center', gap: 2 }, heroCopy: { minHeight: 150, alignItems: 'center', justifyContent: 'space-between', gap: spacing.lg }, center: { textAlign: 'center' }, quoteCircle: { width: 72, height: 72, borderRadius: 36, backgroundColor: palette.gold500 }, sectionHeader: { gap: 2 }, horizontal: { gap: spacing.md, paddingRight: spacing.xl }, recCard: { width: 148, minHeight: 150, borderRadius: radius.lg, padding: spacing.lg, justifyContent: 'space-between' }, habitGrid: { gap: spacing.md }, habitCard: { gap: spacing.sm }, habitTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }, manage: { minHeight: 48, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm },
 });

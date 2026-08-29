@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import { Image } from 'expo-image';
 import { Pressable, StyleSheet, View } from 'react-native';
 
-import { Field, Header, MoodifyText, PrimaryButton, Screen } from '@/components/ui';
+import { Field, Header, MoodifyText, PageBackdrop, PrimaryButton, Screen } from '@/components/ui';
 import { useAppStore } from '@/state/use-app-store';
 import { firebaseConfigured } from '@/services/firebase';
 import { saveProfile } from '@/services/auth';
@@ -22,6 +22,7 @@ export default function ProfileSetupScreen() {
   };
   return (
     <Screen>
+      <PageBackdrop />
       <Header title="Pick an avatar" onBack={() => router.back()} />
       <Image source={require('../../../assets/figma/avatar-default.png')} style={styles.avatar} contentFit="contain" />
       <Field label="How should we call you?" value={profile.displayName} onChangeText={(displayName) => update({ displayName })} placeholder="Your first name or nickname" />

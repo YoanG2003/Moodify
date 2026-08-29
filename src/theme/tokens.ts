@@ -1,14 +1,15 @@
 import { Platform } from 'react-native';
 
 export const palette = {
-  teal900: '#005D61',
-  teal800: '#007474',
-  teal700: '#008080',
-  teal300: '#8AC5C5',
-  teal100: '#DDF2F1',
-  gold700: '#876200',
-  gold500: '#B79D54',
-  gold100: '#F5EBCF',
+  teal900: '#245656',
+  teal800: '#2F7070',
+  teal700: '#3C8585',
+  teal300: '#B2D8DB',
+  teal100: '#DDEEEF',
+  aqua: '#00A2AE',
+  gold700: '#A98933',
+  gold500: '#BCA65E',
+  gold100: '#EFE6C7',
   coral: '#FF6D60',
   white: '#FFFFFF',
   black: '#121212',
@@ -29,7 +30,7 @@ export const palette = {
 export type ThemeMode = 'system' | 'light' | 'dark';
 
 export const lightColors = {
-  background: palette.grey100,
+  background: '#FDFDFD',
   surface: palette.white,
   surfaceMuted: '#E7F0EF',
   heading: palette.grey800,
@@ -70,9 +71,7 @@ export const spacing = { xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32, xxxl: 48
 export const radius = { sm: 8, md: 12, lg: 18, xl: 26, pill: 999 } as const;
 
 export const typography = {
-  regular: Platform.select({ ios: 'System', android: 'sans-serif', default: 'System' }),
-  medium: Platform.select({ ios: 'System', android: 'sans-serif-medium', default: 'System' }),
-  bold: Platform.select({ ios: 'System', android: 'sans-serif', default: 'System' }),
-  montserrat: 'Montserrat_400Regular',
-  montserratBold: 'Montserrat_700Bold',
+  regular: Platform.select({ web: '"Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif', ios: 'System', android: 'sans-serif', default: 'System' }),
+  medium: Platform.select({ web: '"Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif', ios: 'System', android: 'sans-serif-medium', default: 'System' }),
+  bold: Platform.select({ web: '"Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif', ios: 'System', android: 'sans-serif', default: 'System' }),
 } as const;

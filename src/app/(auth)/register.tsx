@@ -4,10 +4,10 @@ import { Controller, useForm, useWatch } from 'react-hook-form';
 import { Alert, Pressable, StyleSheet, View } from 'react-native';
 import { z } from 'zod';
 
-import { Field, Header, MoodifyText, PrimaryButton, Screen } from '@/components/ui';
+import { Field, Header, MoodifyText, PageBackdrop, PrimaryButton, Screen } from '@/components/ui';
 import { validateAge } from '@/lib/age';
 import { useAppStore } from '@/state/use-app-store';
-import { spacing } from '@/theme/tokens';
+import { palette, spacing } from '@/theme/tokens';
 import { firebaseConfigured } from '@/services/firebase';
 import { registerWithEmail } from '@/services/auth';
 
@@ -32,6 +32,7 @@ export default function RegisterScreen() {
   };
   return (
     <Screen keyboard>
+      <PageBackdrop />
       <Header title="Create profile" onBack={() => router.back()} />
       <MoodifyText variant="h1">Let’s create your profile!</MoodifyText>
       <MoodifyText>We ask your age only to confirm eligibility. We store an age band, not your date of birth.</MoodifyText>
@@ -48,4 +49,4 @@ export default function RegisterScreen() {
   );
 }
 
-const styles = StyleSheet.create({ checkRow: { flexDirection: 'row', gap: spacing.md, alignItems: 'flex-start' }, checkbox: { width: 24, height: 24, borderWidth: 1, borderColor: '#808080', borderRadius: 5, alignItems: 'center', justifyContent: 'center' }, checked: { backgroundColor: '#007474', borderColor: '#007474' }, checkCopy: { flex: 1 } });
+const styles = StyleSheet.create({ checkRow: { flexDirection: 'row', gap: spacing.md, alignItems: 'flex-start' }, checkbox: { width: 24, height: 24, borderWidth: 1, borderColor: '#808080', borderRadius: 5, alignItems: 'center', justifyContent: 'center' }, checked: { backgroundColor: palette.teal800, borderColor: palette.teal800 }, checkCopy: { flex: 1 } });

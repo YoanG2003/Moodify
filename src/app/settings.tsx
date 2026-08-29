@@ -9,10 +9,11 @@ import { cancelMoodReminder, requestReminderPermission, scheduleDailyMoodReminde
 import { getHealthAdapter } from '@/services/health';
 import { useAppStore } from '@/state/use-app-store';
 import type { ThemePreference } from '@/types/domain';
-import { spacing } from '@/theme/tokens';
+import { palette, spacing } from '@/theme/tokens';
 import { firebaseConfigured, firebaseFunctions } from '@/services/firebase';
 import { signOutAccount } from '@/services/auth';
 import { httpsCallable } from 'firebase/functions';
+import { useShallow } from 'zustand/react/shallow';
 
 export default function SettingsScreen() {
   const { colors } = useMoodifyTheme();
@@ -22,7 +23,7 @@ export default function SettingsScreen() {
   const clearChat = useAppStore((state) => state.clearChatHistory);
   const deleteAccount = useAppStore((state) => state.deleteAccountData);
   const upsertHealth = useAppStore((state) => state.upsertHealthDaily);
-  const exportState = useAppStore((state) => ({ profile: state.profile, settings: state.settings, moodEntries: state.moodEntries, habits: state.habits, habitLogs: state.habitLogs, healthDaily: state.healthDaily }));
+  const exportState = useAppStore(useShallow((state) => ({ profile: state.profile, settings: state.settings, moodEntries: state.moodEntries, habits: state.habits, habitLogs: state.habitLogs, healthDaily: state.healthDaily })));
   const toggleMoodReminder = async (enabled: boolean) => {
     if (enabled) {
       const granted = await requestReminderPermission();
@@ -78,7 +79,7 @@ export default function SettingsScreen() {
 }
 
 function Action({ icon, label, onPress, danger = false }: { icon: keyof typeof Ionicons.glyphMap; label: string; onPress: () => void; danger?: boolean }) {
-  return <Pressable accessibilityRole="button" onPress={onPress} style={styles.action}><Ionicons name={icon} size={22} color={danger ? '#B42318' : '#007474'} /><MoodifyText color={danger ? '#B42318' : undefined} style={styles.settingCopy}>{label}</MoodifyText><Ionicons name="chevron-forward" size={20} color="#808080" /></Pressable>;
+  return <Pressable accessibilityRole="button" onPress={onPress} style={styles.action}><Ionicons name={icon} size={22} color={danger ? '#B42318' : palette.teal800} /><MoodifyText color={danger ? '#B42318' : undefined} style={styles.settingCopy}>{label}</MoodifyText><Ionicons name="chevron-forward" size={20} color="#808080" /></Pressable>;
 }
 
 const styles = StyleSheet.create({ row: { flexDirection: 'row', gap: spacing.sm }, setting: { flexDirection: 'row', alignItems: 'center', gap: spacing.md }, settingCopy: { flex: 1 }, action: { minHeight: 54, flexDirection: 'row', gap: spacing.md, alignItems: 'center', borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: '#AAAAAA' } });

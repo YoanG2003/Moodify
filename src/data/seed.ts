@@ -39,7 +39,7 @@ export const wellnessContent: WellnessContent[] = [
   },
   {
     id: 'paced-breathing', type: 'tool', category: 'Calm', title: 'Paced breathing', subtitle: 'For an overwhelmed moment',
-    description: 'Follow a slow, even rhythm without holding your breath.', durationMinutes: 3, timerSeconds: 180, icon: 'wind', color: '#DCE8F7', tags: ['overwhelmed','anxious'], published: true,
+    description: 'Follow a slow, even rhythm without holding your breath.', durationMinutes: 3, timerSeconds: 180, icon: 'pulse-outline', color: '#DCE8F7', tags: ['overwhelmed','anxious'], published: true,
     blocks: [{ type: 'step', text: 'Breathe in gently for four counts, then out for six.' }, { type: 'tip', text: 'Return to normal breathing if you feel light-headed.' }],
   },
   {
@@ -53,7 +53,7 @@ export const wellnessContent: WellnessContent[] = [
     blocks: [{ type: 'step', text: 'Write the decision in one sentence and list no more than three options.' }, { type: 'step', text: 'For each option, note one benefit, one cost, and one reversible next step.' }],
   },
   {
-    id: 'self-care-plan', type: 'tool', category: 'Support', title: 'Personal first-aid plan', subtitle: 'Plan support before you need it',
+    id: 'self-care-plan', type: 'tool', category: 'Support', title: 'Personal self-care plan', subtitle: 'Plan support before you need it',
     description: 'Create a non-clinical list of people, places, and actions that help you feel safer.', durationMinutes: 10, icon: 'medkit', color: '#F8D5D1', tags: ['low'], published: true,
     blocks: [{ type: 'step', text: 'Add one person you can contact and one place where you feel safer.' }, { type: 'step', text: 'Add two small actions that have helped before.' }, { type: 'tip', text: 'For immediate danger in the EU, call 112.' }],
   },

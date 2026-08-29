@@ -6,10 +6,11 @@ import { useEffect, useState } from 'react';
 import { Alert, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { z } from 'zod';
 
-import { AuthIllustration, Field, MoodifyText, PrimaryButton, Screen, SocialButton } from '@/components/ui';
+import { AuthIllustration, Field, MoodifyText, PageBackdrop, PrimaryButton, Screen, SocialButton } from '@/components/ui';
 import { en } from '@/i18n/en';
 import { useAppStore } from '@/state/use-app-store';
 import { spacing } from '@/theme/tokens';
+import { useMoodifyTheme } from '@/hooks/use-moodify-theme';
 import { firebaseConfigured } from '@/services/firebase';
 import { loginWithApple, loginWithEmail, loginWithGoogleIdToken, resetPassword } from '@/services/auth';
 import type { UserProfile } from '@/types/domain';
@@ -18,6 +19,7 @@ const schema = z.object({ email: z.email('Enter a valid email address'), passwor
 type Form = z.infer<typeof schema>;
 
 export default function LoginScreen() {
+  const { colors } = useMoodifyTheme();
   const loginDemo = useAppStore((state) => state.loginDemo);
   const setProfile = useAppStore((state) => state.setProfile);
   const [loading, setLoading] = useState(false);
@@ -43,6 +45,7 @@ export default function LoginScreen() {
   };
   return (
     <Screen keyboard contentStyle={styles.content}>
+      <PageBackdrop />
       <AuthIllustration />
       <MoodifyText variant="h1" style={styles.center}>{en.auth.loginTitle}</MoodifyText>
       <View style={styles.socialRow}>
@@ -51,8 +54,8 @@ export default function LoginScreen() {
       </View>
       <Controller control={control} name="email" render={({ field }) => <Field label={en.auth.email} value={field.value} onChangeText={field.onChange} onBlur={field.onBlur} autoCapitalize="none" keyboardType="email-address" autoComplete="email" placeholder="Enter your email address" error={errors.email?.message} />} />
       <Controller control={control} name="password" render={({ field }) => <Field label={en.auth.password} value={field.value} onChangeText={field.onChange} onBlur={field.onBlur} secureTextEntry autoComplete="current-password" placeholder="Enter your password here" error={errors.password?.message} />} />
-      <Pressable onPress={() => firebaseConfigured ? void reset() : Alert.alert('Firebase setup needed', 'Password reset is ready once Firebase credentials are added.')}><MoodifyText variant="small" style={styles.link}>{en.auth.forgot}</MoodifyText></Pressable>
-      <Pressable onPress={() => router.push('/(auth)/register')}><MoodifyText style={[styles.link, styles.underline]}>{en.auth.create}</MoodifyText></Pressable>
+      <Pressable onPress={() => firebaseConfigured ? void reset() : Alert.alert('Firebase setup needed', 'Password reset is ready once Firebase credentials are added.')}><MoodifyText variant="small" color={colors.primary} style={styles.link}>{en.auth.forgot}</MoodifyText></Pressable>
+      <Pressable onPress={() => router.push('/(auth)/register')}><MoodifyText color={colors.primary} style={[styles.link, styles.underline]}>{en.auth.create}</MoodifyText></Pressable>
       <PrimaryButton title={en.auth.login} loading={loading} onPress={handleSubmit((form) => void login(form))} />
       {!firebaseConfigured ? <PrimaryButton secondary title="Try local beta" onPress={() => { loginDemo('demo@moodify.app'); router.replace('/(tabs)'); }} /> : null}
     </Screen>
@@ -74,4 +77,4 @@ function GoogleButton({ onProfile }: { onProfile: (profile: UserProfile) => void
   return <SocialButton provider="google" onPress={() => void promptAsync()} />;
 }
 
-const styles = StyleSheet.create({ content: { gap: spacing.md }, center: { textAlign: 'center' }, socialRow: { flexDirection: 'row', gap: spacing.md }, link: { textAlign: 'center', color: '#007D87' }, underline: { textDecorationLine: 'underline' } });
+const styles = StyleSheet.create({ content: { gap: spacing.md }, center: { textAlign: 'center' }, socialRow: { flexDirection: 'row', gap: spacing.md }, link: { textAlign: 'center' }, underline: { textDecorationLine: 'underline' } });

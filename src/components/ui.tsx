@@ -42,16 +42,17 @@ export function Screen({ children, scroll = true, keyboard = false, contentStyle
 }
 
 export function PageBackdrop() {
-  return <Image source={require('../../assets/figma/friendly-triangles.png')} style={[StyleSheet.absoluteFill, { opacity: 0.12 }]} contentFit="cover" pointerEvents="none" />;
+  const { isDark } = useMoodifyTheme();
+  return <Image source={require('../../assets/figma/auth-background.svg')} style={[StyleSheet.absoluteFill, { opacity: isDark ? 0.18 : 1 }]} contentFit="cover" pointerEvents="none" />;
 }
 
-export function Header({ title, subtitle, onBack, right }: { title: string; subtitle?: string; onBack?: () => void; right?: ReactNode }) {
+export function Header({ title, subtitle, onBack, left, right }: { title: string; subtitle?: string; onBack?: () => void; left?: ReactNode; right?: ReactNode }) {
   const { colors } = useMoodifyTheme();
   return (
     <View style={styles.header}>
-      {onBack ? <IconButton icon="chevron-back" label="Go back" onPress={onBack} /> : <View style={styles.headerSide} />}
+      <View style={styles.headerSide}>{onBack ? <IconButton icon="chevron-back" label="Go back" onPress={onBack} /> : left}</View>
       <View style={styles.headerTitle}>
-        <MoodifyText variant="h2" numberOfLines={1}>{title}</MoodifyText>
+        <MoodifyText variant="h2" color={colors.primary} numberOfLines={1}>{title}</MoodifyText>
         {subtitle ? <MoodifyText variant="small" numberOfLines={1}>{subtitle}</MoodifyText> : null}
       </View>
       <View style={styles.headerSide}>{right}</View>
@@ -134,7 +135,8 @@ export function AuthIllustration() {
 }
 
 export function HeroGradient({ children }: PropsWithChildren) {
-  return <LinearGradient colors={['#DDF2F1', '#F5EBCF']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.heroGradient}>{children}</LinearGradient>;
+  const { isDark } = useMoodifyTheme();
+  return <LinearGradient colors={isDark ? ['#173F3F', '#332F23'] : [palette.teal300, palette.gold100]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.heroGradient}>{children}</LinearGradient>;
 }
 
 const styles = StyleSheet.create({
@@ -160,12 +162,12 @@ const styles = StyleSheet.create({
   fieldWrap: { gap: 5 },
   fieldLabel: { marginLeft: 1 },
   field: { minHeight: 48, borderRadius: radius.sm, borderWidth: 1, paddingLeft: spacing.md, flexDirection: 'row', alignItems: 'center' },
-  fieldInput: { flex: 1, minHeight: 46, fontFamily: typography.montserrat, fontSize: 16 },
+  fieldInput: { flex: 1, minHeight: 46, fontFamily: typography.regular, fontSize: 16 },
   card: { borderRadius: radius.md, borderWidth: StyleSheet.hairlineWidth, padding: spacing.lg, shadowColor: '#101828', shadowOpacity: 0.06, shadowOffset: { width: 0, height: 2 }, shadowRadius: 8, elevation: 2 },
   chip: { minHeight: 36, borderRadius: radius.pill, borderWidth: 1, paddingHorizontal: 14, alignItems: 'center', justifyContent: 'center' },
   progressTrack: { height: 8, borderRadius: radius.pill, overflow: 'hidden' },
   progressValue: { height: '100%', borderRadius: radius.pill },
-  authIllustration: { width: '112%', alignSelf: 'center', height: 300, position: 'relative' },
-  speech: { position: 'absolute', width: 80, height: 60, top: 62, right: 66 },
+  authIllustration: { width: '100%', alignSelf: 'center', height: 250, flexShrink: 0, position: 'relative' },
+  speech: { position: 'absolute', width: 76, height: 58, top: 50, right: 42 },
   heroGradient: { borderRadius: radius.xl, padding: spacing.xl, overflow: 'hidden' },
 });
