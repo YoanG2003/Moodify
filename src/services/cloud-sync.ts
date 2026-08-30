@@ -2,15 +2,17 @@ import {
   collection,
   deleteDoc,
   doc,
+  getDocs,
   onSnapshot,
   serverTimestamp,
   setDoc,
+  type DocumentReference,
   type DocumentData,
   type Unsubscribe,
 } from 'firebase/firestore';
 
 import { firestore } from '@/services/firebase';
-import type { AppSettings, Habit, HabitLog, HealthDaily, MoodEntry } from '@/types/domain';
+import type { AppSettings, ChatMessage, ChatSession, Habit, HabitLog, HealthDaily, MoodEntry } from '@/types/domain';
 
 export interface CloudUserData {
   settings?: AppSettings;
@@ -18,6 +20,7 @@ export interface CloudUserData {
   habits?: Habit[];
   habitLogs?: HabitLog[];
   healthDaily?: HealthDaily[];
+  chatSessions?: ChatSession[];
 }
 
 const usableUid = (uid?: string) => Boolean(firestore && uid && !uid.startsWith('local-'));
@@ -41,6 +44,38 @@ export async function deleteCloudRecord(uid: string | undefined, collectionName:
 
 const rows = <T>(snapshot: { docs: { id: string; data(): DocumentData }[] }) => snapshot.docs.map((item) => ({ id: item.id, ...item.data() } as T));
 
+function isoDate(value: unknown) {
+  if (typeof value === 'string') return value;
+  if (value && typeof (value as { toDate?: unknown }).toDate === 'function') return (value as { toDate(): Date }).toDate().toISOString();
+  return new Date().toISOString();
+}
+
+async function readChatSessions(snapshot: { docs: { id: string; data(): DocumentData; ref: DocumentReference<DocumentData> }[] }) {
+  const sessions = await Promise.all(snapshot.docs.map(async (session) => {
+    const data = session.data();
+    const messageSnapshot = await getDocs(collection(session.ref, 'messages'));
+    const messages = messageSnapshot.docs.map((message) => {
+      const messageData = message.data();
+      return {
+        id: message.id,
+        role: messageData.role,
+        text: messageData.text,
+        safetyMode: messageData.safetyMode,
+        createdAt: isoDate(messageData.createdAt),
+        expiresAt: isoDate(messageData.expiresAt),
+      } as ChatMessage;
+    }).sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+    return {
+      id: session.id,
+      title: typeof data.title === 'string' ? data.title : 'Wellbeing chat',
+      messages,
+      createdAt: isoDate(data.createdAt ?? data.updatedAt),
+      expiresAt: isoDate(data.expiresAt),
+    } as ChatSession;
+  }));
+  return sessions.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+}
+
 export function watchCloudUser(uid: string, onData: (data: CloudUserData) => void): Unsubscribe {
   if (!firestore || !usableUid(uid)) return () => undefined;
   const stops = [
@@ -49,6 +84,7 @@ export function watchCloudUser(uid: string, onData: (data: CloudUserData) => voi
     onSnapshot(collection(firestore, 'users', uid, 'habits'), (snapshot) => { if (!snapshot.empty) onData({ habits: rows<Habit>(snapshot) }); }),
     onSnapshot(collection(firestore, 'users', uid, 'habitLogs'), (snapshot) => onData({ habitLogs: rows<HabitLog>(snapshot) })),
     onSnapshot(collection(firestore, 'users', uid, 'healthDaily'), (snapshot) => onData({ healthDaily: rows<HealthDaily>(snapshot) })),
+    onSnapshot(collection(firestore, 'users', uid, 'chatSessions'), (snapshot) => { void readChatSessions(snapshot).then((chatSessions) => onData({ chatSessions })).catch(() => undefined); }),
   ];
   return () => stops.forEach((stop) => stop());
 }

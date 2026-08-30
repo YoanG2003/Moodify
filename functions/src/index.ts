@@ -19,13 +19,13 @@ const chatSchema = z.object({
   message: z.string().trim().min(1).max(1500),
   locale: z.string().max(12).default('en'),
   region: z.literal('EU'),
-  previousResponseId: z.string().max(160).optional(),
 });
 
 const thirtyDays = () => Timestamp.fromMillis(Date.now() + 30 * 24 * 60 * 60 * 1000);
 
 async function enforceRateLimit(uid: string) {
-  const ref = db.doc(`privateRateLimits/${uid}`);
+  const limitId = createHash('sha256').update(uid).digest('hex');
+  const ref = db.doc(`privateRateLimits/${limitId}`);
   await db.runTransaction(async (transaction) => {
     const snapshot = await transaction.get(ref);
     const now = Date.now();
@@ -50,10 +50,20 @@ export const createAiReply = onCall({ region, enforceAppCheck: true, secrets: [o
 
   const input = parsed.data;
   const sessionRef = db.doc(`users/${uid}/chatSessions/${input.sessionId}`);
+  const existingSession = await sessionRef.get();
+  const storedPreviousResponseId = existingSession.get('previousResponseId');
+  const previousResponseId = typeof storedPreviousResponseId === 'string' ? storedPreviousResponseId : undefined;
   const messageRef = sessionRef.collection('messages').doc();
   const expiresAt = thirtyDays();
-  await sessionRef.set({ title: 'Wellbeing chat', updatedAt: FieldValue.serverTimestamp(), expiresAt }, { merge: true });
-  await messageRef.set({ role: 'user', text: input.message, safetyMode: 'standard', createdAt: FieldValue.serverTimestamp(), expiresAt });
+  const initialWrite = db.batch();
+  initialWrite.set(sessionRef, {
+    title: 'Wellbeing chat',
+    ...(!existingSession.exists ? { createdAt: FieldValue.serverTimestamp() } : {}),
+    updatedAt: FieldValue.serverTimestamp(),
+    expiresAt,
+  }, { merge: true });
+  initialWrite.set(messageRef, { role: 'user', text: input.message, safetyMode: 'standard', createdAt: FieldValue.serverTimestamp(), expiresAt });
+  await initialWrite.commit();
 
   const openai = new OpenAI({ apiKey: openAiKey.value() });
   const moderation = await openai.moderations.create({ model: 'omni-moderation-latest', input: input.message });
@@ -78,7 +88,7 @@ export const createAiReply = onCall({ region, enforceAppCheck: true, secrets: [o
         'If a user may be in immediate danger, tell them to call 112 and contact a trusted person.',
       ].join(' '),
       input: input.message,
-      previous_response_id: input.previousResponseId,
+      previous_response_id: previousResponseId,
       max_output_tokens: 400,
       safety_identifier: createHash('sha256').update(uid).digest('hex').slice(0, 64),
       store: true,
@@ -95,7 +105,7 @@ export const createAiReply = onCall({ region, enforceAppCheck: true, secrets: [o
   const assistantRef = sessionRef.collection('messages').doc();
   await assistantRef.set({ role: 'assistant', text, safetyMode, responseId: responseId ?? null, createdAt: FieldValue.serverTimestamp(), expiresAt });
   await sessionRef.set({ previousResponseId: responseId ?? null, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
-  return { messageId: assistantRef.id, text, safetyMode, responseId, expiresAt: expiresAt.toDate().toISOString() };
+  return { messageId: assistantRef.id, text, safetyMode, expiresAt: expiresAt.toDate().toISOString() };
 });
 
 export const clearChatHistory = onCall({ region, enforceAppCheck: true }, async (request) => {

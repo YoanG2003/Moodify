@@ -42,13 +42,23 @@ function profileFromCredential(credential: UserCredential, ageBand: AgeBand, dis
   };
 }
 
+function newProfileDocument(profile: UserProfile) {
+  const { uid: _uid, createdAt: _createdAt, ...data } = profile;
+  return { ...data, createdAt: serverTimestamp(), updatedAt: serverTimestamp() };
+}
+
+function updatedProfileDocument(profile: UserProfile) {
+  const { uid: _uid, createdAt: _createdAt, ...data } = profile;
+  return { ...data, updatedAt: serverTimestamp() };
+}
+
 export async function registerWithEmail(email: string, password: string, ageBand: AgeBand) {
   const { auth, db } = requireFirebase();
   const credential = await createUserWithEmailAndPassword(auth, email, password);
   const profile = profileFromCredential(credential, ageBand);
   await Promise.all([
     sendEmailVerification(credential.user),
-    setDoc(doc(db, 'users', credential.user.uid), { ...profile, createdAt: serverTimestamp(), updatedAt: serverTimestamp() }),
+    setDoc(doc(db, 'users', credential.user.uid), newProfileDocument(profile)),
   ]);
   return profile;
 }
@@ -58,7 +68,7 @@ async function saveRegisteredProfile(credential: UserCredential, ageBand: AgeBan
   const existing = await getDoc(doc(db, 'users', credential.user.uid));
   if (existing.exists()) return loadExistingProfile(credential);
   const profile = profileFromCredential(credential, ageBand, displayName);
-  await setDoc(doc(db, 'users', credential.user.uid), { ...profile, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
+  await setDoc(doc(db, 'users', credential.user.uid), newProfileDocument(profile));
   return profile;
 }
 
@@ -98,7 +108,10 @@ async function loadExistingProfile(credential: UserCredential) {
     throw new Error('No eligible Moodify profile was found. Create a profile and complete the age check first.');
   }
   const data = snapshot.data() as UserProfile;
-  return { ...data, uid: credential.user.uid, email: credential.user.email ?? data.email, emailVerified: credential.user.emailVerified };
+  const createdAt = data.createdAt && typeof (data.createdAt as unknown as { toDate?: unknown }).toDate === 'function'
+    ? (data.createdAt as unknown as { toDate(): Date }).toDate().toISOString()
+    : data.createdAt;
+  return { ...data, createdAt, uid: credential.user.uid, email: credential.user.email ?? data.email, emailVerified: credential.user.emailVerified };
 }
 
 export async function loginWithEmail(email: string, password: string) {
@@ -124,7 +137,7 @@ export async function resetPassword(email: string) {
 
 export async function saveProfile(profile: UserProfile) {
   const { db } = requireFirebase();
-  await setDoc(doc(db, 'users', profile.uid), { ...profile, updatedAt: serverTimestamp() }, { merge: true });
+  await setDoc(doc(db, 'users', profile.uid), updatedProfileDocument(profile), { merge: true });
 }
 
 export async function signOutAccount() {

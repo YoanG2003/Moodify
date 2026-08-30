@@ -3,35 +3,153 @@ service cloud.firestore {
   match /databases/{database}/documents {
     function signedIn() { return request.auth != null; }
     function owns(uid) { return signedIn() && request.auth.uid == uid; }
+    function shortString(value, max) { return value is string && value.size() <= max; }
+    function dateValue(value) { return value is string || value is timestamp; }
+    function validAvatar(avatar) {
+      return avatar is map
+        && avatar.keys().hasOnly(['hair', 'skin', 'eyes', 'clothes'])
+        && avatar.keys().hasAll(['hair', 'skin', 'eyes', 'clothes'])
+        && shortString(avatar.hair, 60)
+        && shortString(avatar.skin, 60)
+        && shortString(avatar.eyes, 60)
+        && shortString(avatar.clothes, 60);
+    }
     function validUser() {
-      return request.resource.data.keys().hasOnly(['email','displayName','ageBand','avatar','termsVersion','privacyVersion','emailVerified','createdAt','updatedAt'])
-        && request.resource.data.ageBand in ['16-17','18+'];
+      let data = request.resource.data;
+      return data.keys().hasOnly(['email', 'displayName', 'ageBand', 'avatar', 'termsVersion', 'privacyVersion', 'emailVerified', 'createdAt', 'updatedAt'])
+        && data.keys().hasAll(['email', 'displayName', 'ageBand', 'avatar', 'termsVersion', 'privacyVersion', 'emailVerified', 'createdAt', 'updatedAt'])
+        && shortString(data.email, 320)
+        && shortString(data.displayName, 50)
+        && data.ageBand in ['16-17', '18+']
+        && validAvatar(data.avatar)
+        && shortString(data.termsVersion, 32)
+        && shortString(data.privacyVersion, 32)
+        && data.emailVerified is bool
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+    function validSettings() {
+      let data = request.resource.data;
+      return data.keys().hasOnly(['theme', 'locale', 'region', 'timeZone', 'moodReminderEnabled', 'moodReminderTime', 'healthSyncEnabled', 'analyticsEnabled', 'crashReportingEnabled', 'updatedAt'])
+        && data.keys().hasAll(['theme', 'locale', 'region', 'timeZone', 'moodReminderEnabled', 'moodReminderTime', 'healthSyncEnabled', 'analyticsEnabled', 'crashReportingEnabled', 'updatedAt'])
+        && data.theme in ['system', 'light', 'dark']
+        && shortString(data.locale, 12)
+        && data.region == 'EU'
+        && shortString(data.timeZone, 80)
+        && data.moodReminderEnabled is bool
+        && data.moodReminderTime is string
+        && data.moodReminderTime.matches('^([01][0-9]|2[0-3]):[0-5][0-9]$')
+        && data.healthSyncEnabled is bool
+        && data.analyticsEnabled is bool
+        && data.crashReportingEnabled is bool
+        && data.updatedAt is timestamp;
+    }
+    function validMood(entryId) {
+      let data = request.resource.data;
+      return data.keys().hasOnly(['id', 'occurredAt', 'mood', 'causes', 'weather', 'note', 'feedback', 'createdAt', 'updatedAt'])
+        && data.keys().hasAll(['id', 'occurredAt', 'mood', 'causes', 'createdAt', 'updatedAt'])
+        && data.id == entryId
+        && shortString(data.occurredAt, 40)
+        && data.mood is int && data.mood >= 1 && data.mood <= 5
+        && data.causes is list && data.causes.size() <= 20
+        && (!('weather' in data) || shortString(data.weather, 60))
+        && (!('note' in data) || shortString(data.note, 1500))
+        && (!('feedback' in data) || (data.feedback is int && data.feedback >= 1 && data.feedback <= 5))
+        && dateValue(data.createdAt)
+        && data.updatedAt is timestamp;
+    }
+    function validHabit(habitId) {
+      let data = request.resource.data;
+      return data.keys().hasOnly(['id', 'title', 'kind', 'target', 'unit', 'weekdays', 'reminderEnabled', 'reminderTime', 'active', 'createdAt', 'updatedAt'])
+        && data.keys().hasAll(['id', 'title', 'kind', 'target', 'unit', 'weekdays', 'reminderEnabled', 'active', 'createdAt', 'updatedAt'])
+        && data.id == habitId
+        && shortString(data.title, 50)
+        && data.kind in ['sleep', 'water', 'food', 'workout', 'custom']
+        && data.target is number && data.target > 0 && data.target <= 1000000
+        && shortString(data.unit, 20)
+        && data.weekdays is list && data.weekdays.size() >= 1 && data.weekdays.size() <= 7
+        && data.weekdays.hasOnly([0, 1, 2, 3, 4, 5, 6])
+        && data.reminderEnabled is bool
+        && (!('reminderTime' in data) || (data.reminderTime is string && data.reminderTime.matches('^([01][0-9]|2[0-3]):[0-5][0-9]$')))
+        && data.active is bool
+        && dateValue(data.createdAt)
+        && data.updatedAt is timestamp;
+    }
+    function validHabitLog(logId) {
+      let data = request.resource.data;
+      return data.keys().hasOnly(['id', 'habitId', 'date', 'value', 'completed', 'updatedAt'])
+        && data.keys().hasAll(['id', 'habitId', 'date', 'value', 'completed', 'updatedAt'])
+        && data.id == logId
+        && shortString(data.habitId, 200)
+        && data.date is string && data.date.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && data.value is number && data.value >= 0 && data.value <= 1000000
+        && data.completed is bool
+        && data.updatedAt is timestamp;
+    }
+    function validSource(source) { return source in ['manual', 'healthkit', 'health-connect']; }
+    function validHealth(date) {
+      let data = request.resource.data;
+      return data.keys().hasOnly(['date', 'steps', 'sleepMinutes', 'waterMl', 'sources', 'syncedAt', 'updatedAt'])
+        && data.keys().hasAll(['date', 'sources', 'updatedAt'])
+        && data.date == date
+        && data.date.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && (!('steps' in data) || (data.steps is number && data.steps >= 0 && data.steps <= 250000))
+        && (!('sleepMinutes' in data) || (data.sleepMinutes is number && data.sleepMinutes >= 0 && data.sleepMinutes <= 1440))
+        && (!('waterMl' in data) || (data.waterMl is number && data.waterMl >= 0 && data.waterMl <= 20000))
+        && data.sources is map
+        && data.sources.keys().hasOnly(['steps', 'sleepMinutes', 'waterMl'])
+        && (!('steps' in data.sources) || validSource(data.sources.steps))
+        && (!('sleepMinutes' in data.sources) || validSource(data.sources.sleepMinutes))
+        && (!('waterMl' in data.sources) || validSource(data.sources.waterMl))
+        && (!('syncedAt' in data) || shortString(data.syncedAt, 40))
+        && data.updatedAt is timestamp;
     }
 
     match /users/{uid} {
       allow read, delete: if owns(uid);
       allow create, update: if owns(uid) && validUser();
 
-      match /settings/{document=**} { allow read, write: if owns(uid); }
+      match /settings/{settingId} {
+        allow read: if owns(uid) && settingId == 'main';
+        allow create, update: if owns(uid) && settingId == 'main' && validSettings();
+        allow delete: if owns(uid) && settingId == 'main';
+      }
       match /moodEntries/{entryId} {
         allow read, delete: if owns(uid);
-        allow create, update: if owns(uid)
-          && request.resource.data.mood is int
-          && request.resource.data.mood >= 1
-          && request.resource.data.mood <= 5;
+        allow create, update: if owns(uid) && validMood(entryId);
       }
-      match /habits/{habitId} { allow read, write: if owns(uid); }
-      match /habitLogs/{logId} { allow read, write: if owns(uid); }
-      match /healthDaily/{date} { allow read, write: if owns(uid); }
+      match /habits/{habitId} {
+        allow read, delete: if owns(uid);
+        allow create, update: if owns(uid) && validHabit(habitId);
+      }
+      match /habitLogs/{logId} {
+        allow read, delete: if owns(uid);
+        allow create, update: if owns(uid) && validHabitLog(logId);
+      }
+      match /healthDaily/{date} {
+        allow read, delete: if owns(uid);
+        allow create, update: if owns(uid) && validHealth(date);
+      }
       match /chatSessions/{sessionId} {
         allow read, delete: if owns(uid);
         allow create, update: if false;
-        match /messages/{messageId} { allow read, delete: if owns(uid); allow create, update: if false; }
+        match /messages/{messageId} {
+          allow read, delete: if owns(uid);
+          allow create, update: if false;
+        }
       }
     }
 
-    match /content/{contentId} { allow read: if resource.data.published == true; allow write: if false; }
-    match /crisisResources/{resourceId} { allow read: if true; allow write: if false; }
-    match /privateRateLimits/{uid} { allow read, write: if false; }
+    match /content/{contentId} {
+      allow read: if resource.data.published == true;
+      allow write: if false;
+    }
+    match /crisisResources/{resourceId} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /privateRateLimits/{limitId} {
+      allow read, write: if false;
+    }
   }
 }

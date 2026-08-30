@@ -17,7 +17,6 @@ export default function ChatScreen() {
   const sessions = useAppStore((state) => state.chatSessions);
   const ensureSession = useAppStore((state) => state.ensureChatSession);
   const addMessage = useAppStore((state) => state.addChatMessage);
-  const updateResponseId = useAppStore((state) => state.updateChatResponseId);
   const [started, setStarted] = useState(false);
   const [draft, setDraft] = useState('');
   const [loading, setLoading] = useState(false);
@@ -37,9 +36,8 @@ export default function ChatScreen() {
     addMessage(sessionId, { role: 'user', text: message, safetyMode: 'standard' });
     setLoading(true);
     try {
-      const reply = await createAiReply({ sessionId, message, locale: 'en', region: 'EU', previousResponseId: session?.previousResponseId });
+      const reply = await createAiReply({ sessionId, message, locale: 'en', region: 'EU' });
       addMessage(sessionId, { role: 'assistant', text: reply.text, safetyMode: reply.safetyMode });
-      if (reply.responseId) updateResponseId(sessionId, reply.responseId);
     } catch {
       addMessage(sessionId, { role: 'assistant', text: 'I could not connect right now. Your message remains private on this device; please try again when you are online.', safetyMode: 'support' });
     } finally {

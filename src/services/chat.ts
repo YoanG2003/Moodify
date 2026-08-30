@@ -8,7 +8,6 @@ export interface AiReplyRequest {
   message: string;
   locale: string;
   region: 'EU';
-  previousResponseId?: string;
 }
 
 export interface AiReplyResponse {
@@ -16,7 +15,6 @@ export interface AiReplyResponse {
   text: string;
   safetyMode: 'standard' | 'support' | 'crisis';
   expiresAt: string;
-  responseId?: string;
 }
 
 export async function createAiReply(request: AiReplyRequest): Promise<AiReplyResponse> {
