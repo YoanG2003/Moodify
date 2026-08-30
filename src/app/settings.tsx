@@ -27,6 +27,13 @@ const confirmations: Record<ConfirmAction, { title: string; body: string; confir
   deleteAccount: { title: 'Delete account and data?', body: 'This permanently removes your Moodify account, moods, habits, health summaries, and chat history.', confirm: 'Delete permanently', danger: true },
 };
 
+const availableHealthCopy = (daily: { sources: { steps?: unknown; sleepMinutes?: unknown } }) => {
+  const metrics = [daily.sources.steps ? 'steps' : '', daily.sources.sleepMinutes ? 'sleep' : ''].filter(Boolean);
+  if (metrics.length === 2) return 'Today’s available step and sleep summaries are connected.';
+  if (metrics.length === 1) return `Today’s available ${metrics[0]} summary is connected. The other metric remains available for manual entry.`;
+  return 'Health access is connected, but no step or sleep samples were available today. Manual entry remains available.';
+};
+
 export default function SettingsScreen() {
   const { colors } = useMoodifyTheme();
   const settings = useAppStore((state) => state.settings);
@@ -117,9 +124,10 @@ export default function SettingsScreen() {
         setMessage('Health permission was not granted. Manual entries remain available.');
         return;
       }
-      upsertHealth(await adapter.readToday());
+      const daily = await adapter.readToday();
+      upsertHealth(daily);
       updateSettings({ healthSyncEnabled: true });
-      setMessage('Today’s step and sleep summaries are connected.');
+      setMessage(availableHealthCopy(daily));
     } catch {
       setMessage('Moodify could not read today’s health summary. You can reconnect later.');
     } finally {
@@ -133,8 +141,9 @@ export default function SettingsScreen() {
     try {
       const adapter = getHealthAdapter();
       if (!(await adapter.isAvailable())) throw new Error('unavailable');
-      upsertHealth(await adapter.readToday());
-      setMessage('Today’s health summary is up to date. Manual values were preserved.');
+      const daily = await adapter.readToday();
+      upsertHealth(daily);
+      setMessage(`${availableHealthCopy(daily)} Manual values were preserved.`);
     } catch {
       updateSettings({ healthSyncEnabled: false });
       setMessage('Health access is unavailable or was revoked. Moodify disconnected it; manual entry remains available.');
