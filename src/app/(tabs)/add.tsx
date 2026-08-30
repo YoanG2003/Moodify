@@ -92,7 +92,7 @@ export default function AddMoodScreen() {
         <View style={styles.weatherRow} accessibilityRole="radiogroup">
           {weather.map((item) => {
             const selected = selectedWeather === item.label;
-            return <Pressable key={item.label} accessibilityRole="radio" accessibilityLabel={item.label} accessibilityState={{ selected }} onPress={() => setWeather(item.label)} style={[styles.weatherChoice, selected && { borderColor: colors.primary }]}><Image source={isDark ? darkWeather[item.label] : item.source} style={styles.weatherImage} contentFit="fill" /></Pressable>;
+            return <Pressable key={item.label} accessibilityRole="radio" accessibilityLabel={item.label} accessibilityState={{ checked: selected }} onPress={() => setWeather(item.label)} style={[styles.weatherChoice, selected && { borderColor: colors.primary }]}><Image source={isDark ? darkWeather[item.label] : item.source} style={styles.weatherImage} contentFit="fill" /></Pressable>;
           })}
         </View>
       </View>
