@@ -127,6 +127,22 @@ export default function SettingsScreen() {
     }
   };
 
+  const syncHealthNow = async () => {
+    setBusy(true);
+    setNotice(undefined);
+    try {
+      const adapter = getHealthAdapter();
+      if (!(await adapter.isAvailable())) throw new Error('unavailable');
+      upsertHealth(await adapter.readToday());
+      setMessage('Today’s health summary is up to date. Manual values were preserved.');
+    } catch {
+      updateSettings({ healthSyncEnabled: false });
+      setMessage('Health access is unavailable or was revoked. Moodify disconnected it; manual entry remains available.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const clearChatNow = async () => {
     if (firebaseConfigured && firebaseFunctions) await httpsCallable(firebaseFunctions, 'clearChatHistory')();
     clearChat();
@@ -211,7 +227,8 @@ export default function SettingsScreen() {
         </View>
         <View style={[styles.statusRow, { borderTopColor: colors.border }]}>
           <View style={[styles.statusDot, { backgroundColor: settings.healthSyncEnabled ? colors.success : colors.textMuted }]} />
-          <MoodifyText variant="small">{settings.healthSyncEnabled ? 'Connected · tap the switch to disconnect' : 'Not connected · manual entry is available'}</MoodifyText>
+          <MoodifyText variant="small" style={styles.flex}>{settings.healthSyncEnabled ? 'Connected · daily summaries only' : 'Not connected · manual entry is available'}</MoodifyText>
+          {settings.healthSyncEnabled ? <Pressable accessibilityRole="button" accessibilityLabel="Sync health data now" disabled={busy} onPress={() => void syncHealthNow()} style={styles.syncButton}>{busy ? <ActivityIndicator size="small" color={colors.primary} /> : <MoodifyText variant="label" color={colors.primary}>Sync now</MoodifyText>}</Pressable> : null}
         </View>
       </Card>
 
@@ -320,6 +337,7 @@ const styles = StyleSheet.create({
   timeValue: { fontWeight: '700' },
   statusRow: { minHeight: 46, borderTopWidth: StyleSheet.hairlineWidth, marginTop: spacing.md, paddingHorizontal: spacing.lg, flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   statusDot: { width: 8, height: 8, borderRadius: radius.pill },
+  syncButton: { minWidth: 72, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
   actions: { borderWidth: StyleSheet.hairlineWidth, borderRadius: radius.md, paddingHorizontal: spacing.lg, overflow: 'hidden' },
   action: { minHeight: 56, flexDirection: 'row', gap: spacing.md, alignItems: 'center', borderBottomWidth: StyleSheet.hairlineWidth },
   actionLast: { borderBottomWidth: 0 },

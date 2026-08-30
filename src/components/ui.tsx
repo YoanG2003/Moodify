@@ -93,7 +93,7 @@ export function Field({ label, error, rightIcon, onRightPress, ...props }: TextI
     <View style={styles.fieldWrap}>
       <MoodifyText variant="label" style={styles.fieldLabel}>{label}</MoodifyText>
       <View style={[styles.field, { backgroundColor: colors.input, borderColor: error ? colors.danger : colors.border }]}>
-        <TextInput placeholderTextColor={colors.inputPlaceholder} {...props} style={[styles.fieldInput, { color: colors.inputText }]} />
+        <TextInput placeholderTextColor={colors.inputPlaceholder} {...props} accessibilityLabel={props.accessibilityLabel ?? label} style={[styles.fieldInput, { color: colors.inputText }]} />
         {rightIcon ? <IconButton icon={rightIcon} label={`${label} action`} onPress={onRightPress} color={colors.textMuted} /> : null}
       </View>
       {error ? <MoodifyText variant="small" color={colors.danger}>{error}</MoodifyText> : null}

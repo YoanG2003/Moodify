@@ -34,9 +34,22 @@ export function resolveHealthMetric(
 }
 
 export function mergeHealthDaily(existing: HealthDaily | undefined, incoming: HealthDaily): HealthDaily {
-  return {
+  const merged: HealthDaily = {
     ...existing,
     ...incoming,
     sources: { ...existing?.sources, ...incoming.sources },
   };
+  if (existing?.sources.steps === 'manual' && incoming.sources.steps !== 'manual') {
+    merged.steps = existing.steps;
+    merged.sources.steps = 'manual';
+  }
+  if (existing?.sources.sleepMinutes === 'manual' && incoming.sources.sleepMinutes !== 'manual') {
+    merged.sleepMinutes = existing.sleepMinutes;
+    merged.sources.sleepMinutes = 'manual';
+  }
+  if (existing?.sources.waterMl === 'manual' && incoming.sources.waterMl !== 'manual') {
+    merged.waterMl = existing.waterMl;
+    merged.sources.waterMl = 'manual';
+  }
+  return merged;
 }

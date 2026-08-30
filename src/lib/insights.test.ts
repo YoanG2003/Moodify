@@ -16,5 +16,5 @@ test('calculates habit completion and preserves manual health values', () => {
   expect(mergeHealthDaily(
     { date: '2026-08-28', steps: 1000, waterMl: 1500, sources: { steps: 'manual', waterMl: 'manual' } },
     { date: '2026-08-28', steps: 4200, sleepMinutes: 450, sources: { steps: 'healthkit', sleepMinutes: 'healthkit' } },
-  )).toMatchObject({ steps: 4200, sleepMinutes: 450, waterMl: 1500, sources: { steps: 'healthkit', sleepMinutes: 'healthkit', waterMl: 'manual' } });
+  )).toMatchObject({ steps: 1000, sleepMinutes: 450, waterMl: 1500, sources: { steps: 'manual', sleepMinutes: 'healthkit', waterMl: 'manual' } });
 });
