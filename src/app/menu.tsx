@@ -6,6 +6,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { MoodifyText } from '@/components/ui';
 import { useMoodifyTheme } from '@/hooks/use-moodify-theme';
 import { signOutAccount } from '@/services/auth';
+import { cancelAllReminders } from '@/services/notifications';
 import { useAppStore } from '@/state/use-app-store';
 import { palette, radius, typography } from '@/theme/tokens';
 
@@ -14,9 +15,14 @@ export default function MenuScreen() {
   const logout = useAppStore((state) => state.logout);
   const [notice, setNotice] = useState('');
   const signOut = async () => {
-    await signOutAccount();
-    logout();
-    router.replace('/(auth)/login');
+    try {
+      await signOutAccount();
+      await cancelAllReminders().catch(() => undefined);
+      logout();
+      router.replace('/(auth)/login');
+    } catch {
+      setNotice('Moodify could not sign out. Please check your connection and try again.');
+    }
   };
 
   return (

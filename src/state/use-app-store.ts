@@ -33,6 +33,16 @@ const defaultSettings: AppSettings = {
   crashReportingEnabled: false,
 };
 
+const emptyPersonalData = () => ({
+  settings: defaultSettings,
+  moodEntries: [] as MoodEntry[],
+  habits: defaultHabits,
+  habitLogs: [] as HabitLog[],
+  healthDaily: [] as HealthDaily[],
+  chatSessions: [] as ChatSession[],
+  contentProgress: {} as Record<string, ContentProgress>,
+});
+
 type RegisterInput = Pick<UserProfile, 'email' | 'displayName' | 'ageBand'>;
 
 interface AppState {
@@ -87,10 +97,11 @@ export const useAppStore = create<AppState>()(
       chatSessions: [],
       contentProgress: {},
       setHydrated: (value) => set({ hasHydrated: value }),
-      setProfile: (profile) => set({ profile }),
+      setProfile: (profile) => set((state) => state.profile?.uid === profile?.uid ? { profile } : { ...emptyPersonalData(), profile }),
       applyCloudData: (data) => set(data),
       completeOnboarding: () => set({ hasSeenOnboarding: true }),
       loginDemo: (email) => set({
+        ...emptyPersonalData(),
         profile: {
           uid: 'local-demo', email, displayName: 'Lily', ageBand: '18+',
           avatar: { hair: 'waves', skin: 'medium', eyes: 'happy', clothes: 'hoodie' },
@@ -99,6 +110,7 @@ export const useAppStore = create<AppState>()(
         },
       }),
       register: (input) => set({
+        ...emptyPersonalData(),
         profile: {
           uid: `local-${id()}`,
           ...input,
@@ -107,7 +119,7 @@ export const useAppStore = create<AppState>()(
           createdAt: new Date().toISOString(),
         },
       }),
-      logout: () => set({ profile: null }),
+      logout: () => set({ ...emptyPersonalData(), profile: null }),
       updateProfile: (update) => set((state) => ({ profile: state.profile ? { ...state.profile, ...update } : null })),
       updateSettings: (update) => set((state) => {
         const settings = { ...state.settings, ...update };
@@ -193,7 +205,7 @@ export const useAppStore = create<AppState>()(
         delete contentProgress[contentId];
         return { contentProgress };
       }),
-      deleteAccountData: () => set({ profile: null, settings: defaultSettings, moodEntries: [], habits: defaultHabits, habitLogs: [], healthDaily: [], chatSessions: [], contentProgress: {} }),
+      deleteAccountData: () => set({ ...emptyPersonalData(), profile: null }),
     }),
     {
       name: 'moodify-state-v1',

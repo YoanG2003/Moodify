@@ -42,3 +42,7 @@ export async function scheduleHabitReminders(habitId: string, title: string, wee
 export async function cancelHabitReminders(habitId: string) {
   await Promise.all(Array.from({ length: 7 }, (_, weekday) => Notifications.cancelScheduledNotificationAsync(`habit-${habitId}-${weekday}`).catch(() => undefined)));
 }
+
+export async function cancelAllReminders() {
+  await Notifications.cancelAllScheduledNotificationsAsync();
+}

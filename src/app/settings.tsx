@@ -12,7 +12,7 @@ import { useMoodifyTheme } from '@/hooks/use-moodify-theme';
 import { signOutAccount } from '@/services/auth';
 import { firebaseConfigured, firebaseFunctions } from '@/services/firebase';
 import { getHealthAdapter } from '@/services/health';
-import { cancelMoodReminder, requestReminderPermission, scheduleDailyMoodReminder } from '@/services/notifications';
+import { cancelAllReminders, cancelMoodReminder, requestReminderPermission, scheduleDailyMoodReminder } from '@/services/notifications';
 import { useAppStore } from '@/state/use-app-store';
 import { palette, radius, spacing } from '@/theme/tokens';
 import type { ThemePreference } from '@/types/domain';
@@ -23,7 +23,7 @@ const timeSchema = z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Use 24-hour 
 
 const confirmations: Record<ConfirmAction, { title: string; body: string; confirm: string; danger?: boolean }> = {
   clearChat: { title: 'Clear AI chat history?', body: 'All saved Moodify chat sessions will be removed immediately. This cannot be undone.', confirm: 'Clear history', danger: true },
-  signOut: { title: 'Sign out?', body: 'Your synced information stays with your account. You can sign in again at any time.', confirm: 'Sign out' },
+  signOut: { title: 'Sign out?', body: 'Your synced information stays with your account. Moodify will remove its local copy and scheduled reminders from this device.', confirm: 'Sign out' },
   deleteAccount: { title: 'Delete account and data?', body: 'This permanently removes your Moodify account, moods, habits, health summaries, and chat history.', confirm: 'Delete permanently', danger: true },
 };
 
@@ -151,6 +151,7 @@ export default function SettingsScreen() {
 
   const deleteNow = async () => {
     if (firebaseConfigured && firebaseFunctions) await httpsCallable(firebaseFunctions, 'deleteAccountData')();
+    await cancelAllReminders().catch(() => undefined);
     deleteAccount();
     router.replace('/(auth)/login');
   };
@@ -163,6 +164,7 @@ export default function SettingsScreen() {
       if (pendingAction === 'clearChat') await clearChatNow();
       if (pendingAction === 'signOut') {
         await signOutAccount();
+        await cancelAllReminders().catch(() => undefined);
         logout();
         router.replace('/(auth)/login');
       }
