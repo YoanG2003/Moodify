@@ -100,6 +100,12 @@ export interface WellnessContent {
   published: boolean;
 }
 
+export interface ContentProgress {
+  checkedSteps: number[];
+  completedAt?: string;
+  updatedAt: string;
+}
+
 export interface ChatMessage {
   id: string;
   role: 'user' | 'assistant';

@@ -8,6 +8,7 @@ import type {
   AppSettings,
   ChatMessage,
   ChatSession,
+  ContentProgress,
   Habit,
   HabitLog,
   HealthDaily,
@@ -44,6 +45,7 @@ interface AppState {
   habitLogs: HabitLog[];
   healthDaily: HealthDaily[];
   chatSessions: ChatSession[];
+  contentProgress: Record<string, ContentProgress>;
   setHydrated: (value: boolean) => void;
   setProfile: (profile: UserProfile | null) => void;
   applyCloudData: (data: CloudUserData) => void;
@@ -66,6 +68,8 @@ interface AppState {
   addChatMessage: (sessionId: string, message: Omit<ChatMessage, 'id' | 'createdAt' | 'expiresAt'>) => ChatMessage;
   updateChatResponseId: (sessionId: string, responseId: string) => void;
   clearChatHistory: () => void;
+  updateContentProgress: (contentId: string, update: Partial<ContentProgress>) => void;
+  resetContentProgress: (contentId: string) => void;
   deleteAccountData: () => void;
 }
 
@@ -81,6 +85,7 @@ export const useAppStore = create<AppState>()(
       habitLogs: [],
       healthDaily: [],
       chatSessions: [],
+      contentProgress: {},
       setHydrated: (value) => set({ hasHydrated: value }),
       setProfile: (profile) => set({ profile }),
       applyCloudData: (data) => set(data),
@@ -174,7 +179,21 @@ export const useAppStore = create<AppState>()(
       },
       updateChatResponseId: (sessionId, responseId) => set((state) => ({ chatSessions: state.chatSessions.map((session) => session.id === sessionId ? { ...session, previousResponseId: responseId } : session) })),
       clearChatHistory: () => set({ chatSessions: [] }),
-      deleteAccountData: () => set({ profile: null, settings: defaultSettings, moodEntries: [], habits: defaultHabits, habitLogs: [], healthDaily: [], chatSessions: [] }),
+      updateContentProgress: (contentId, update) => set((state) => {
+        const current = state.contentProgress[contentId] ?? { checkedSteps: [], updatedAt: '' };
+        return {
+          contentProgress: {
+            ...state.contentProgress,
+            [contentId]: { ...current, ...update, updatedAt: new Date().toISOString() },
+          },
+        };
+      }),
+      resetContentProgress: (contentId) => set((state) => {
+        const contentProgress = { ...state.contentProgress };
+        delete contentProgress[contentId];
+        return { contentProgress };
+      }),
+      deleteAccountData: () => set({ profile: null, settings: defaultSettings, moodEntries: [], habits: defaultHabits, habitLogs: [], healthDaily: [], chatSessions: [], contentProgress: {} }),
     }),
     {
       name: 'moodify-state-v1',
