@@ -3,7 +3,7 @@
 ## Accounts and credentials
 
 - Set the EAS project ID, Apple team, App Store Connect app, Google Play app, and production bundle/package ownership.
-- Add `GoogleService-Info.plist` and `google-services.json` through secure EAS file variables or an approved secrets workflow; never commit private credentials.
+- Add `GoogleService-Info.plist` and `google-services.json` as EAS file variables named `GOOGLE_SERVICES_PLIST` and `GOOGLE_SERVICES_JSON`; never commit private credentials. The dynamic app config enables native Firebase only when the platform file is present.
 - Configure Firebase OAuth providers, email-action deep links, authorized domains, App Check attestation, Crashlytics, and minimal Analytics consent.
 - Set the Functions `OPENAI_API_KEY` secret and confirm the production model/region.
 
